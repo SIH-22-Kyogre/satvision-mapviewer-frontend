@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import Mumbai from "./assets/gateway-of-india-mumbai.svg";
 import Delhi from "./assets/india-gate-delhi.svg";
 import Kolkata from "./assets/victoria-memorial-kolkata.svg";
@@ -15,17 +16,12 @@ function Home() {
   return (
     <div className="h-screen grid place-items-center bg-gray-300 text-center">
       <div className="bg-white p-4 rounded-xl gap-2">
-        <h1 className="font-bold text-2xl p-2">Select a city to visit</h1>
-        <div className="flex">
-          {cities.map((city) => {
-            return (
-              <div className="rounded-xl p-2 hover:bg-gray-100">
-                <img src={city.icon} alt={city.name}></img>
-                <p>{city.name}</p>
-              </div>
-            );
-          })}
-        </div>
+        <h2 className="text-3xl font-bold p-2">Welcome to Satvision!</h2>
+        <Link to="/map_interface">
+          <p className="bg-slate-100 p-2 rounded-xl hover:bg-slate-200">
+            Goto App
+          </p>
+        </Link>
       </div>
     </div>
   );
