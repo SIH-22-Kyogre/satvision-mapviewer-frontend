@@ -11,16 +11,17 @@ mapboxgl.accessToken =
 function MapInterface() {
   let cities = [
     { name: "Bengaluru", coords: [77.5946, 12.9716], icon: Bengaluru },
-    { name: "Delhi", coords: [77.1025, 28.7041], icon: Delhi },
+    { name: "Delhi", coords: [77.216721, 28.6448], icon: Delhi },
     { name: "Kolkata", coords: [88.3639, 22.5726], icon: Kolkata },
     { name: "Mumbai", coords: [72.8777, 19.076], icon: Mumbai },
   ];
   const mapContainer = useRef(null);
   const map = useRef(null);
-  const [toggleFilter, setToggleFilter] = useState(false);
+  // const [toggleFilter, setToggleFilter] = useState(false);
   const [builtup, setBuiltup] = useState(false);
   const [residential, setResidential] = useState(false);
   const [isHamOpen, setHamOpen] = useState(false);
+  const [corners, setCorners] = useState({});
 
   // Mockup
   let coord_mapping = {
@@ -39,21 +40,19 @@ function MapInterface() {
       container: mapContainer.current,
       style: "mapbox://styles/mapbox/satellite-streets-v11",
       center: [77.1025, 28.7041], // Default - Delhi
-      maxZoom: 11,
-      minZoom: 4,
-      zoom: 10,
+      // maxZoom: 11,
+      // minZoom: 4,
+      zoom: 12,
     });
     map.current.on("moveend", () => {
       const ne = map.current.getBounds()["_ne"];
       const sw = map.current.getBounds()["_sw"];
-      const corners = {
+      setCorners({
         nw: [sw["lng"], ne["lat"]],
         ne: [ne["lng"], ne["lat"]],
         se: [ne["lng"], sw["lat"]],
         sw: [sw["lng"], sw["lat"]],
-      };
-      console.log(corners["nw"]);
-      //new mapboxgl.Marker().setLngLat(corners["nw"]).addTo(map.current); // to see the marker in the north west corner
+      });
     });
   });
 
@@ -62,6 +61,8 @@ function MapInterface() {
       map.current.removeLayer("radar-layer");
       map.current.removeSource("radar");
     }
+
+    console.log(coord);
 
     map.current.addSource("radar", {
       type: "image",
@@ -91,36 +92,7 @@ function MapInterface() {
           {isHamOpen ? (
             <div className="w-1/6">
               <div className="h-screen grid place-items-center bg-zinc-100">
-                <div className="p-2 bg-white rounded-xl">
-                  <div className="flex gap-4">
-                    <div
-                      className={
-                        toggleFilter
-                          ? "hover:bg-slate-400 hover:text-white rounded-xl p-2"
-                          : "bg-black text-white rounded-xl p-2"
-                      }
-                      onClick={() => {
-                        setToggleFilter(false);
-                      }}
-                    >
-                      Cities
-                    </div>
-                    <div
-                      className={
-                        !toggleFilter
-                          ? "hover:bg-slate-400 hover:text-white rounded-xl p-2"
-                          : "bg-black text-white rounded-xl p-2"
-                      }
-                      onClick={() => {
-                        setToggleFilter(true);
-                      }}
-                    >
-                      Filters
-                    </div>
-                  </div>
-                </div>
-
-                {!toggleFilter ? (
+                {
                   <div className="bg-white rounded-xl gap-2 p-2 m-2">
                     <h1 className="font-bold text-2xl p-2 grid place-items-center text-center">
                       Select a city <br />
@@ -144,8 +116,7 @@ function MapInterface() {
                                 duration: 10000,
                               });
                               setCurrentCity(city.name);
-                              setCoord(coord_mapping[city.name]);
-                              setToggleFilter(true);
+                              // setCoord(coord_mapping[city.name]);
                             }}
                           >
                             <img src={city.icon} alt={city.name}></img>
@@ -153,42 +124,34 @@ function MapInterface() {
                           </div>
                         );
                       })}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-white rounded-xl gap-2 p-2 m-2">
-                    <div className="form-control">
-                      <label className="label cursor-pointer">
-                        <span className="label-text pr-4">Residential</span>
-                        <input
-                          type="checkbox"
-                          className="toggle toggle-primary"
-                          checked={residential}
-                          onClick={() => {
-                            setResidential(!residential);
-                          }}
-                        />
-                      </label>
-                      <label className="label cursor-pointer">
-                        <span className="label-text pr-4">Builtup</span>
-                        <input
-                          type="checkbox"
-                          className="toggle toggle-primary"
-                          checked={builtup}
-                          onClick={() => {
-                            setBuiltup(!builtup);
-                          }}
-                        />
-                      </label>
                       <button
-                        onClick={() => addLayer()}
+                        onClick={() => {
+                          const ne = map.current.getBounds()["_ne"];
+                          const sw = map.current.getBounds()["_sw"];
+
+                          console.log(
+                            sw["lng"],
+                            sw["lat"],
+                            ne["lng"],
+                            ne["lat"]
+                          );
+
+                          setCoord([
+                            sw["lng"],
+                            sw["lat"],
+                            ne["lng"],
+                            ne["lat"],
+                          ]);
+
+                          addLayer();
+                        }}
                         className="p-2 bg-violet-400 hover:bg-violet-600 rounded-xl font-semibold text-white"
                       >
-                        Toggle
+                        Annotate
                       </button>
                     </div>
                   </div>
-                )}
+                }
               </div>
             </div>
           ) : (
