@@ -21,12 +21,24 @@ function MapInterface() {
   const [builtup, setBuiltup] = useState(false);
   const [residential, setResidential] = useState(false);
   const [isHamOpen, setHamOpen] = useState(false);
+
+  // Mockup
+  let coord_mapping = {
+    Bengaluru: [77.4255, 12.8752, 77.7176, 13.065],
+    Delhi: [76.5946, 28.366, 77.616, 28.9635],
+    Kolkata: [88.1708, 22.4857, 88.4947, 22.685],
+    Mumbai: [72.6015, 18.9002, 73.1554, 19.2492],
+  };
+
+  const [city, setCity] = useState("Delhi");
+  const [coord, setCoord] = useState(coord_mapping["Delhi"]);
+
   useEffect(() => {
     if (map.current) return; // initialize map only once
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      style: "mapbox://styles/mapbox/streets-v11",
-      center: [77.1025, 28.7041],
+      style: "mapbox://styles/mapbox/satellite-streets-v11",
+      center: [77.1025, 28.7041], // Default - Delhi
       zoom: 10,
     });
   });
@@ -74,6 +86,7 @@ function MapInterface() {
                       Select a city <br />
                       to visit
                     </h1>
+                    <h2>Current City: {city}</h2>
                     <div className="flex flex-col">
                       {cities.map((city, index) => {
                         return (
@@ -87,6 +100,8 @@ function MapInterface() {
                                 zoom: 10,
                                 duration: 10000,
                               });
+                              setCity(city.name);
+                              setCoord(coord_mapping[city.name]);
                             }}
                           >
                             <img src={city.icon} alt={city.name}></img>
@@ -98,29 +113,63 @@ function MapInterface() {
                   </div>
                 ) : (
                   <div className="bg-white rounded-xl gap-2 p-2 m-2">
-                    <div class="form-control">
-                      <label class="label cursor-pointer">
-                        <span class="label-text pr-4">Residential</span>
+                    <div className="form-control">
+                      <label className="label cursor-pointer">
+                        <span className="label-text pr-4">Residential</span>
                         <input
                           type="checkbox"
-                          class="toggle toggle-primary"
+                          className="toggle toggle-primary"
                           checked={residential}
                           onClick={() => {
                             setResidential(!residential);
                           }}
                         />
                       </label>
-                      <label class="label cursor-pointer">
-                        <span class="label-text pr-4">Builtup</span>
+                      <label className="label cursor-pointer">
+                        <span className="label-text pr-4">Builtup</span>
                         <input
                           type="checkbox"
-                          class="toggle toggle-primary"
+                          className="toggle toggle-primary"
                           checked={builtup}
                           onClick={() => {
                             setBuiltup(!builtup);
                           }}
                         />
                       </label>
+                      <button
+                        onClick={() => {
+                          console.log(map.current.getSource("radar"));
+                          if (
+                            typeof map.current.getSource("radar") !==
+                            "undefined"
+                          ) {
+                            map.current.removeLayer("radar-layer");
+                            map.current.removeSource("radar");
+                          }
+
+                          map.current.addSource("radar", {
+                            type: "image",
+                            url: `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/[${coord}]/300x200@2x?access_token=pk.eyJ1IjoiYXJhdmluZGthbm5hbjAxIiwiYSI6ImNsNzJ5dHp4NTExaXkzb3NiYXhraXYwdnQifQ.XHZ07PcTPU6ff2qxg8bcRQ`,
+                            coordinates: [
+                              [coord[0], coord[3]],
+                              [coord[2], coord[3]],
+                              [coord[2], coord[1]],
+                              [coord[0], coord[1]],
+                            ],
+                          });
+                          map.current.addLayer({
+                            id: "radar-layer",
+                            type: "raster",
+                            source: "radar",
+                            paint: {
+                              "raster-fade-duration": 0,
+                            },
+                          });
+                        }}
+                        className="p-2 bg-violet-400 hover:bg-violet-600 rounded-xl font-semibold text-white"
+                      >
+                        Go!
+                      </button>
                     </div>
                   </div>
                 )}
@@ -133,7 +182,7 @@ function MapInterface() {
             direction="right"
             toggled={isHamOpen}
             toggle={setHamOpen}
-            class="p-2 h-8"
+            className="p-2 h-8"
           />
         </div>
       </main>
