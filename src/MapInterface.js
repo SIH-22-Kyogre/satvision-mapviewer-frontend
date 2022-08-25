@@ -43,6 +43,23 @@ function MapInterface() {
       minZoom: 4,
       zoom: 10,
     });
+    map.current.on("moveend", () => {
+      const ne = map.current.getBounds()["_ne"];
+      const sw = map.current.getBounds()["_sw"];
+      const swlat = sw["lat"];
+      const swlng = sw["lng"];
+      const nelat = ne["lat"];
+      const nelng = ne["lng"];
+      console.log(map.current.getBounds());
+      const corners = {
+        nw: [swlng, nelat],
+        ne: [nelng, nelat],
+        se: [nelng, swlat],
+        sw: [swlng, swlat],
+      };
+      console.log(corners["nw"]);
+      // new mapboxgl.Marker().setLngLat(corners["nw"]).addTo(map.current);// to see the marker in the north west corner
+    });
   });
 
   const addLayer = () => {
