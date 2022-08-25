@@ -46,19 +46,14 @@ function MapInterface() {
     map.current.on("moveend", () => {
       const ne = map.current.getBounds()["_ne"];
       const sw = map.current.getBounds()["_sw"];
-      const swlat = sw["lat"];
-      const swlng = sw["lng"];
-      const nelat = ne["lat"];
-      const nelng = ne["lng"];
-      console.log(map.current.getBounds());
       const corners = {
-        nw: [swlng, nelat],
-        ne: [nelng, nelat],
-        se: [nelng, swlat],
-        sw: [swlng, swlat],
+        nw: [sw["lng"], ne["lat"]],
+        ne: [ne["lng"], ne["lat"]],
+        se: [ne["lng"], sw["lat"]],
+        sw: [sw["lng"], sw["lat"]],
       };
       console.log(corners["nw"]);
-      // new mapboxgl.Marker().setLngLat(corners["nw"]).addTo(map.current);// to see the marker in the north west corner
+      //new mapboxgl.Marker().setLngLat(corners["nw"]).addTo(map.current); // to see the marker in the north west corner
     });
   });
 
