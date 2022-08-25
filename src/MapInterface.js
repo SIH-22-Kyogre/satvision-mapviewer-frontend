@@ -4,7 +4,7 @@ import Mumbai from "./assets/gateway-of-india-mumbai.svg";
 import Delhi from "./assets/india-gate-delhi.svg";
 import Kolkata from "./assets/victoria-memorial-kolkata.svg";
 import Bengaluru from "./assets/vidhana-soudha-bengaluru.svg";
-
+import Hamburger from 'hamburger-react'
 mapboxgl.accessToken =
   "pk.eyJ1IjoiYXJhdmluZGthbm5hbjAxIiwiYSI6ImNsNzJ5dHp4NTExaXkzb3NiYXhraXYwdnQifQ.XHZ07PcTPU6ff2qxg8bcRQ";
 
@@ -20,7 +20,7 @@ function MapInterface() {
   const [toggleFilter, setToggleFilter] = useState(false);
   const [builtup, setBuiltup] = useState(false);
   const [residential, setResidential] = useState(false);
-
+  const [isHamOpen, setHamOpen] = useState(false)
   useEffect(() => {
     if (map.current) return; // initialize map only once
     map.current = new mapboxgl.Map({
@@ -30,12 +30,16 @@ function MapInterface() {
       zoom: 10,
     });
   });
+  
 
   return (
     <>
       <main>
         <div className="flex">
-          <div ref={mapContainer} className="h-screen w-5/6" />
+       
+          <div ref={mapContainer} className="h-screen w-full" >
+            </div>
+          {isHamOpen ? (          
           <div className="w-1/6">
             <div className="h-screen grid place-items-center bg-zinc-100">
               <div className="p-2 bg-white rounded-xl">
@@ -66,7 +70,8 @@ function MapInterface() {
                   </div>
                 </div>
               </div>
-              {!toggleFilter ? (
+              
+              {!toggleFilter  ? (
                 <div className="bg-white rounded-xl gap-2 p-2 m-2">
                   <h1 className="font-bold text-2xl p-2 grid place-items-center text-center">
                     Select a city <br />
@@ -124,7 +129,10 @@ function MapInterface() {
               )}
             </div>
           </div>
+          ):(<div/>)}
+          <Hamburger direction="right" toggled={isHamOpen} toggle={setHamOpen} class="p-2 h-8" />
         </div>
+        
       </main>
     </>
   );
