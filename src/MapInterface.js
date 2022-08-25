@@ -4,7 +4,7 @@ import Mumbai from "./assets/gateway-of-india-mumbai.svg";
 import Delhi from "./assets/india-gate-delhi.svg";
 import Kolkata from "./assets/victoria-memorial-kolkata.svg";
 import Bengaluru from "./assets/vidhana-soudha-bengaluru.svg";
-import Hamburger from 'hamburger-react'
+import Hamburger from "hamburger-react";
 mapboxgl.accessToken =
   "pk.eyJ1IjoiYXJhdmluZGthbm5hbjAxIiwiYSI6ImNsNzJ5dHp4NTExaXkzb3NiYXhraXYwdnQifQ.XHZ07PcTPU6ff2qxg8bcRQ";
 
@@ -20,7 +20,7 @@ function MapInterface() {
   const [toggleFilter, setToggleFilter] = useState(false);
   const [builtup, setBuiltup] = useState(false);
   const [residential, setResidential] = useState(false);
-  const [isHamOpen, setHamOpen] = useState(false)
+  const [isHamOpen, setHamOpen] = useState(false);
   useEffect(() => {
     if (map.current) return; // initialize map only once
     map.current = new mapboxgl.Map({
@@ -30,109 +30,112 @@ function MapInterface() {
       zoom: 10,
     });
   });
-  
 
   return (
     <>
       <main>
         <div className="flex">
-       
-          <div ref={mapContainer} className="h-screen w-full" >
-            </div>
-          {isHamOpen ? (          
-          <div className="w-1/6">
-            <div className="h-screen grid place-items-center bg-zinc-100">
-              <div className="p-2 bg-white rounded-xl">
-                <div className="flex gap-4">
-                  <div
-                    className={
-                      toggleFilter
-                        ? "hover:bg-black hover:text-white rounded-xl p-2"
-                        : "bg-black text-white rounded-xl p-2"
-                    }
-                    onClick={() => {
-                      setToggleFilter(false);
-                    }}
-                  >
-                    Cities
-                  </div>
-                  <div
-                    className={
-                      !toggleFilter
-                        ? "hover:bg-black hover:text-white rounded-xl p-2"
-                        : "bg-black text-white rounded-xl p-2"
-                    }
-                    onClick={() => {
-                      setToggleFilter(true);
-                    }}
-                  >
-                    Filters
+          <div ref={mapContainer} className="h-screen w-full"></div>
+          {isHamOpen ? (
+            <div className="w-1/6">
+              <div className="h-screen grid place-items-center bg-zinc-100">
+                <div className="p-2 bg-white rounded-xl">
+                  <div className="flex gap-4">
+                    <div
+                      className={
+                        toggleFilter
+                          ? "hover:bg-black hover:text-white rounded-xl p-2"
+                          : "bg-black text-white rounded-xl p-2"
+                      }
+                      onClick={() => {
+                        setToggleFilter(false);
+                      }}
+                    >
+                      Cities
+                    </div>
+                    <div
+                      className={
+                        !toggleFilter
+                          ? "hover:bg-black hover:text-white rounded-xl p-2"
+                          : "bg-black text-white rounded-xl p-2"
+                      }
+                      onClick={() => {
+                        setToggleFilter(true);
+                      }}
+                    >
+                      Filters
+                    </div>
                   </div>
                 </div>
-              </div>
-              
-              {!toggleFilter  ? (
-                <div className="bg-white rounded-xl gap-2 p-2 m-2">
-                  <h1 className="font-bold text-2xl p-2 grid place-items-center text-center">
-                    Select a city <br />
-                    to visit
-                  </h1>
-                  <div className="flex flex-col">
-                    {cities.map((city, index) => {
-                      return (
-                        <div
-                          key={index}
-                          className="rounded-xl p-2 hover:bg-gray-100 flex flex-col items-center"
+
+                {!toggleFilter ? (
+                  <div className="bg-white rounded-xl gap-2 p-2 m-2">
+                    <h1 className="font-bold text-2xl p-2 grid place-items-center text-center">
+                      Select a city <br />
+                      to visit
+                    </h1>
+                    <div className="flex flex-col">
+                      {cities.map((city, index) => {
+                        return (
+                          <div
+                            key={index}
+                            className="rounded-xl p-2 hover:bg-gray-100 flex flex-col items-center"
+                            onClick={() => {
+                              map.current.flyTo({
+                                center: city.coords,
+                                essential: true,
+                                zoom: 10,
+                                duration: 10000,
+                              });
+                            }}
+                          >
+                            <img src={city.icon} alt={city.name}></img>
+                            <p>{city.name}</p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-xl gap-2 p-2 m-2">
+                    <div class="form-control">
+                      <label class="label cursor-pointer">
+                        <span class="label-text pr-4">Residential</span>
+                        <input
+                          type="checkbox"
+                          class="toggle toggle-primary"
+                          checked={residential}
                           onClick={() => {
-                            map.current.flyTo({
-                              center: city.coords,
-                              essential: true,
-                              zoom: 10,
-                              duration: 10000,
-                            });
+                            setResidential(!residential);
                           }}
-                        >
-                          <img src={city.icon} alt={city.name}></img>
-                          <p>{city.name}</p>
-                        </div>
-                      );
-                    })}
+                        />
+                      </label>
+                      <label class="label cursor-pointer">
+                        <span class="label-text pr-4">Builtup</span>
+                        <input
+                          type="checkbox"
+                          class="toggle toggle-primary"
+                          checked={builtup}
+                          onClick={() => {
+                            setBuiltup(!builtup);
+                          }}
+                        />
+                      </label>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div className="bg-white rounded-xl gap-2 p-2 m-2">
-                  <div class="form-control">
-                    <label class="label cursor-pointer">
-                      <span class="label-text pr-4">Residential</span>
-                      <input
-                        type="checkbox"
-                        class="toggle toggle-primary"
-                        checked={residential}
-                        onClick={() => {
-                          setResidential(!residential);
-                        }}
-                      />
-                    </label>
-                    <label class="label cursor-pointer">
-                      <span class="label-text pr-4">Builtup</span>
-                      <input
-                        type="checkbox"
-                        class="toggle toggle-primary"
-                        checked={builtup}
-                        onClick={() => {
-                          setBuiltup(!builtup);
-                        }}
-                      />
-                    </label>
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
-          ):(<div/>)}
-          <Hamburger direction="right" toggled={isHamOpen} toggle={setHamOpen} class="p-2 h-8" />
+          ) : (
+            <div />
+          )}
+          <Hamburger
+            direction="right"
+            toggled={isHamOpen}
+            toggle={setHamOpen}
+            class="p-2 h-8"
+          />
         </div>
-        
       </main>
     </>
   );
