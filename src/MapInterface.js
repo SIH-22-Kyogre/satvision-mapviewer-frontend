@@ -30,7 +30,7 @@ function MapInterface() {
     Mumbai: [72.6015, 18.9002, 73.1554, 19.2492],
   };
 
-  const [city, setCity] = useState("Delhi");
+  const [currentCity, setCurrentCity] = useState("Delhi");
   const [coord, setCoord] = useState(coord_mapping["Delhi"]);
 
   useEffect(() => {
@@ -39,13 +39,41 @@ function MapInterface() {
       container: mapContainer.current,
       style: "mapbox://styles/mapbox/satellite-streets-v11",
       center: [77.1025, 28.7041], // Default - Delhi
+      maxZoom: 11,
+      minZoom: 4,
       zoom: 10,
     });
   });
 
+  const addLayer = () => {
+    if (typeof map.current.getSource("radar") !== "undefined") {
+      map.current.removeLayer("radar-layer");
+      map.current.removeSource("radar");
+    }
+
+    map.current.addSource("radar", {
+      type: "image",
+      url: `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/[${coord}]/300x200@2x?access_token=pk.eyJ1IjoiYXJhdmluZGthbm5hbjAxIiwiYSI6ImNsNzJ5dHp4NTExaXkzb3NiYXhraXYwdnQifQ.XHZ07PcTPU6ff2qxg8bcRQ`,
+      coordinates: [
+        [coord[0], coord[3]],
+        [coord[2], coord[3]],
+        [coord[2], coord[1]],
+        [coord[0], coord[1]],
+      ],
+    });
+    map.current.addLayer({
+      id: "radar-layer",
+      type: "raster",
+      source: "radar",
+      paint: {
+        "raster-fade-duration": 0,
+      },
+    });
+  };
+
   return (
     <>
-      <main>
+      <main className="bg-zinc-100">
         <div className="flex">
           <div ref={mapContainer} className="h-screen w-full"></div>
           {isHamOpen ? (
@@ -56,7 +84,7 @@ function MapInterface() {
                     <div
                       className={
                         toggleFilter
-                          ? "hover:bg-black hover:text-white rounded-xl p-2"
+                          ? "hover:bg-slate-400 hover:text-white rounded-xl p-2"
                           : "bg-black text-white rounded-xl p-2"
                       }
                       onClick={() => {
@@ -68,7 +96,7 @@ function MapInterface() {
                     <div
                       className={
                         !toggleFilter
-                          ? "hover:bg-black hover:text-white rounded-xl p-2"
+                          ? "hover:bg-slate-400 hover:text-white rounded-xl p-2"
                           : "bg-black text-white rounded-xl p-2"
                       }
                       onClick={() => {
@@ -86,13 +114,16 @@ function MapInterface() {
                       Select a city <br />
                       to visit
                     </h1>
-                    <h2>Current City: {city}</h2>
                     <div className="flex flex-col">
                       {cities.map((city, index) => {
                         return (
                           <div
                             key={index}
-                            className="rounded-xl p-2 hover:bg-gray-100 flex flex-col items-center"
+                            className={
+                              city.name === currentCity
+                                ? "rounded-xl p-2 bg-violet-600 text-white flex flex-col items-center"
+                                : "rounded-xl p-2 hover:bg-violet-100 flex flex-col items-center"
+                            }
                             onClick={() => {
                               map.current.flyTo({
                                 center: city.coords,
@@ -100,8 +131,9 @@ function MapInterface() {
                                 zoom: 10,
                                 duration: 10000,
                               });
-                              setCity(city.name);
+                              setCurrentCity(city.name);
                               setCoord(coord_mapping[city.name]);
+                              setToggleFilter(true);
                             }}
                           >
                             <img src={city.icon} alt={city.name}></img>
@@ -137,38 +169,10 @@ function MapInterface() {
                         />
                       </label>
                       <button
-                        onClick={() => {
-                          console.log(map.current.getSource("radar"));
-                          if (
-                            typeof map.current.getSource("radar") !==
-                            "undefined"
-                          ) {
-                            map.current.removeLayer("radar-layer");
-                            map.current.removeSource("radar");
-                          }
-
-                          map.current.addSource("radar", {
-                            type: "image",
-                            url: `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/[${coord}]/300x200@2x?access_token=pk.eyJ1IjoiYXJhdmluZGthbm5hbjAxIiwiYSI6ImNsNzJ5dHp4NTExaXkzb3NiYXhraXYwdnQifQ.XHZ07PcTPU6ff2qxg8bcRQ`,
-                            coordinates: [
-                              [coord[0], coord[3]],
-                              [coord[2], coord[3]],
-                              [coord[2], coord[1]],
-                              [coord[0], coord[1]],
-                            ],
-                          });
-                          map.current.addLayer({
-                            id: "radar-layer",
-                            type: "raster",
-                            source: "radar",
-                            paint: {
-                              "raster-fade-duration": 0,
-                            },
-                          });
-                        }}
+                        onClick={() => addLayer()}
                         className="p-2 bg-violet-400 hover:bg-violet-600 rounded-xl font-semibold text-white"
                       >
-                        Go!
+                        Toggle
                       </button>
                     </div>
                   </div>
