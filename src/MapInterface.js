@@ -17,11 +17,16 @@ function MapInterface() {
   ];
   const mapContainer = useRef(null);
   const map = useRef(null);
-  // const [toggleFilter, setToggleFilter] = useState(false);
-  const [builtup, setBuiltup] = useState(false);
-  const [residential, setResidential] = useState(false);
   const [isHamOpen, setHamOpen] = useState(false);
   const [corners, setCorners] = useState({});
+  const [toggle, setToggle] = useState(false);
+
+  // Presets
+  const initialValues = { name: "", coords: [], deleted: false };
+  const [formValues, setFormValues] = useState(initialValues);
+  const [presets, setPresets] = useState([
+    { name: "Preset 1", coords: [30.7294719, 76.663792], deleted: false },
+  ]);
 
   // Mockup
   let coord_mapping = {
@@ -52,6 +57,9 @@ function MapInterface() {
         se: [ne["lng"], sw["lat"]],
         sw: [sw["lng"], sw["lat"]],
       });
+    });
+    map.current.on("load", function () {
+      map.current.resize();
     });
   });
 
@@ -95,11 +103,33 @@ function MapInterface() {
         <div className="flex">
           <div ref={mapContainer} className="h-screen w-full"></div>
           {isHamOpen ? (
-            <div className="w-1/6">
+            <div className="w-2/6">
               <div className="h-screen grid place-items-center bg-zinc-100">
-                {
-                  <div className="bg-white rounded-xl gap-2 p-2 m-2">
-                    <h1 className="font-bold text-2xl p-2 grid place-items-center text-center">
+                <div className="flex bg-white rounded-xl p-3 gap-2">
+                  <div
+                    onClick={() => setToggle(false)}
+                    className={
+                      !toggle
+                        ? "p-2 bg-black text-white rounded-xl"
+                        : "p-2 hover:bg-slate-400 rounded-xl"
+                    }
+                  >
+                    Cities
+                  </div>
+                  <div
+                    onClick={() => setToggle(true)}
+                    className={
+                      toggle
+                        ? "p-2 bg-black text-white rounded-xl"
+                        : "p-2 hover:bg-slate-400 hover:text-white rounded-xl"
+                    }
+                  >
+                    Presets
+                  </div>
+                </div>
+                {!toggle ? (
+                  <div className="bg-white rounded-xl gap-1 p-2 m-2">
+                    <h1 className="font-bold text-2xl p-1 grid place-items-center text-center">
                       Select a city <br />
                       to visit
                     </h1>
@@ -110,8 +140,8 @@ function MapInterface() {
                             key={index}
                             className={
                               city.name === currentCity
-                                ? "rounded-xl p-2 bg-violet-600 text-white flex flex-col items-center"
-                                : "rounded-xl p-2 hover:bg-violet-100 flex flex-col items-center"
+                                ? "rounded-xl p-1 bg-violet-600 text-white flex flex-col items-center"
+                                : "rounded-xl p-1 hover:bg-violet-100 flex flex-col items-center"
                             }
                             onClick={() => {
                               map.current.flyTo({
@@ -149,13 +179,53 @@ function MapInterface() {
                             ne["lat"],
                           ]);
                         }}
-                        className="p-2 bg-violet-400 hover:bg-violet-600 rounded-xl font-semibold text-white"
+                        className="p-1 bg-violet-400 hover:bg-violet-600 rounded-xl font-semibold text-white"
                       >
                         Annotate
                       </button>
                     </div>
                   </div>
-                }
+                ) : (
+                  <div className="bg-white rounded-xl gap-1 p-2 m-2">
+                    <form>
+                      <div>
+                        <label>Name</label>
+                        <input
+                          className="border-2 rounded-lg p-2"
+                          type="text"
+                          name="username"
+                          placeholder="Username"
+                          value={formValues.username}
+                        />
+                      </div>
+                      <div>
+                        <label>Longitude</label>
+                        <input
+                          className="border-2 rounded-lg p-2"
+                          type="number"
+                          step="any"
+                          name="longitude"
+                          placeholder="Longitude"
+                          value={formValues.longitude}
+                        />
+                      </div>
+                      <div>
+                        <label>Latitude</label>
+                        <input
+                          className="border-2 rounded-lg p-2"
+                          type="number"
+                          step="any"
+                          name="latitude"
+                          placeholder="Latitude"
+                          value={formValues.latitude}
+                        />
+                      </div>
+                      <button>
+                        <i class="fa-solid fa-plus"></i>Add
+                      </button>
+                    </form>
+                  </div>
+                )}
               </div>
             </div>
           ) : (
@@ -165,7 +235,7 @@ function MapInterface() {
             direction="right"
             toggled={isHamOpen}
             toggle={setHamOpen}
-            className="p-2 h-8"
+            className="p-1 h-8"
           />
         </div>
       </main>
