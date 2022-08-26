@@ -5,6 +5,7 @@ import Delhi from "./assets/india-gate-delhi.svg";
 import Kolkata from "./assets/victoria-memorial-kolkata.svg";
 import Bengaluru from "./assets/vidhana-soudha-bengaluru.svg";
 import Punjab from "./assets/goldtemp.svg";
+import Jaipur from "./assets/hawa-mahal.svg";
 import Hamburger from "hamburger-react";
 mapboxgl.accessToken =
   "pk.eyJ1IjoiYXJhdmluZGthbm5hbjAxIiwiYSI6ImNsNzJ5dHp4NTExaXkzb3NiYXhraXYwdnQifQ.XHZ07PcTPU6ff2qxg8bcRQ";
@@ -16,6 +17,12 @@ function MapInterface() {
     { name: "Kolkata", coords: [87.7705796735, 22.8062154198], icon: Kolkata },
     { name: "Mumbai", coords: [72.8777, 19.076], icon: Mumbai },
     { name: "Punjab", coords: [76.6597635, 30.6958605], icon: Punjab },
+    { name: "Jaipur", coords: [75.778885, 26.92207], icon: Jaipur },
+    {
+      name: "Ahemdabad",
+      coords: [72.57895659691309, 23.03422397838913],
+      icon: Jaipur,
+    },
   ];
   const mapContainer = useRef(null);
   const map = useRef(null);
@@ -28,9 +35,39 @@ function MapInterface() {
   const [formValues, setFormValues] = useState(initialValues);
   const [presets, setPresets] = useState([
     {
-      name: "Preset 1",
-      longitude: 30.7294719,
-      latitude: 76.663792,
+      name: "CGC",
+      longitude: 76.665177,
+      latitude: 30.686534,
+      deleted: false,
+    },
+    {
+      name: "IIT Delhi",
+      longitude: 77.1928,
+      latitude: 28.5457,
+      deleted: false,
+    },
+    {
+      name: "Vidhana Soudha",
+      longitude: 77.5906,
+      latitude: 12.9796,
+      deleted: false,
+    },
+    {
+      name: "Howrah Bridge",
+      longitude: 88.3468,
+      latitude: 22.5851,
+      deleted: false,
+    },
+    {
+      name: "IIT Bombay",
+      longitude: 72.9133,
+      latitude: 19.1334,
+      deleted: false,
+    },
+    {
+      name: "MNIT Jaipur",
+      longitude: 75.8108,
+      latitude: 26.864,
       deleted: false,
     },
   ]);
@@ -48,21 +85,17 @@ function MapInterface() {
     Mumbai: [72.6015, 18.9002, 73.1554, 19.2492],
   };
 
-  // Review 2
+  // Review 2 Changes
+  // const marker = new mapboxgl.Marker({
+  //   draggable: true,
+  // })
+  //   .setLngLat([0, 0])
+  //   .addTo(map.current);
 
-  const marker = new mapboxgl.Marker({
-    draggable: true,
-  })
-    .setLngLat([0, 0])
-    .addTo(map);
-
-  function onDragEnd() {
-    const lngLat = marker.getLngLat();
-    coordinates.style.display = "block";
-    coordinates.innerHTML = `Longitude: ${lngLat.lng}<br />Latitude: ${lngLat.lat}`;
-  }
-
-  marker.on("dragend", onDragEnd);
+  // marker.current.on("dragend", () => {
+  //   const lngLat = marker.getLngLat();
+  //   console.log(lngLat);
+  // });
 
   const [currentCity, setCurrentCity] = useState("Delhi");
 
@@ -93,7 +126,7 @@ function MapInterface() {
 
   const addLayer = (coord, curCity) => {
     if (typeof map.current.getSource("radar") !== "undefined") {
-      map.current.removeLayer("radar-layer");
+      map.current.removeLayer("radar_layer");
       map.current.removeSource("radar");
     }
 
@@ -118,7 +151,7 @@ function MapInterface() {
           [coord[0], coord[1]],
         ],
       });
-    } else if (curCity === "Kolkata" || curCity === "punjab") {
+    } else if (curCity === "Kolkata") {
       console.log("./assets/kolkata.png");
 
       map.current.addSource("radar", {
@@ -145,12 +178,20 @@ function MapInterface() {
     }
 
     map.current.addLayer({
-      id: "radar-layer",
+      id: "radar_layer",
       type: "raster",
       source: "radar",
       paint: {
         "raster-fade-duration": 0,
       },
+    });
+
+    map.current.on("click", "radar_layer", function (e) {
+      console.log("Show me!");
+    });
+
+    map.current.on("click", "radar", function (e) {
+      console.log("Show me2!");
     });
   };
 
@@ -204,7 +245,7 @@ function MapInterface() {
                               map.current.flyTo({
                                 center: city.coords,
                                 essential: true,
-                                zoom: 15,
+                                zoom: 12,
                                 duration: 10000,
                               });
                               setCurrentCity(city.name);
@@ -296,25 +337,35 @@ function MapInterface() {
                     </h1>
                     <div className="flex flex-col gap-4 mt-4">
                       {console.log("presets", presets)}
-                      {presets
-                        .filter((preset) => {
-                          return !preset.deleted;
-                        })
-                        .map((preset, index) => {
-                          return (
-                            <div
-                              key={index}
-                              className="bg-violet-300 hover:bg-violet-500 rounded-xl p-2 text-white"
-                            >
-                              <div>
-                                <p>{preset.name}</p>
-                                <p>
-                                  {preset.longitude},{preset.latitude}
-                                </p>
+                      {presets &&
+                        presets
+                          .filter((preset) => {
+                            return !preset.deleted;
+                          })
+                          .map((preset, index) => {
+                            return (
+                              <div
+                                key={index}
+                                onClick={() => {
+                                  map.current.flyTo({
+                                    center: [preset.longitude, preset.latitude],
+                                    essential: true,
+                                    zoom: 12,
+                                    duration: 10000,
+                                  });
+                                  setCurrentCity("");
+                                }}
+                                className="bg-violet-300 hover:bg-violet-500 rounded-xl p-2 text-white"
+                              >
+                                <div>
+                                  <p>{preset.name}</p>
+                                  <p>
+                                    {preset.longitude},{preset.latitude}
+                                  </p>
+                                </div>
                               </div>
-                            </div>
-                          );
-                        })}
+                            );
+                          })}
                     </div>
                   </div>
                 )}
