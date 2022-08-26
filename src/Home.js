@@ -43,7 +43,7 @@ function Home() {
           <div className=" w-1/2 grid place-items-center text-lg bg-opacity">
             <div
               className="bg-white text-md p-10 rounded-xl flex flex-col gap-8 bg-opacity-40 bg-clip-padding  m-8 flex flex-col items-center font-semibold"
-              style={{ "backdrop-filter": "blur(20px)" }}
+              style={{ backdropFilter: "blur(20px)" }}
             >
               Identifying Non Residential built-up cluster detection from latest
               medium resolution satellite images for four highly populated

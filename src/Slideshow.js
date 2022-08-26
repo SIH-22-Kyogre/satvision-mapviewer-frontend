@@ -1,7 +1,28 @@
 import React from "react";
 import "./Slideshow.css";
 
-const colors = ["#0088FE", "#00C49F", "#FFBB28"];
+const photos = [
+  {
+    src: "Landsat8.png",
+    desc: "LandSat-8 (National Aeronautics and Space Agency - NASA)- Spatial Resolution 30m",
+  },
+  {
+    src: "Sentinel2.png",
+    desc: "Sentinel-2 (European Space Agency - ESA- Spatial Resolution 10m)",
+  },
+  {
+    src: "gt.png",
+    desc: "Ground Truth",
+  },
+  {
+    src: "Patching.png",
+    desc: "Patchify the image into small patches of size (64,64)",
+  },
+  {
+    src: "Reconstructed.png",
+    desc: "Reconstructed patches of non residential builtup areas",
+  },
+];
 const delay = 2500;
 
 export default function Slideshow() {
@@ -19,7 +40,7 @@ export default function Slideshow() {
     timeoutRef.current = setTimeout(
       () =>
         setIndex((prevIndex) =>
-          prevIndex === colors.length - 1 ? 0 : prevIndex + 1
+          prevIndex === photos.length - 1 ? 0 : prevIndex + 1
         ),
       delay
     );
@@ -35,17 +56,18 @@ export default function Slideshow() {
         className="slideshowSlider"
         style={{ transform: `translate3d(${-index * 100}%, 0, 0)` }}
       >
-        {colors.map((backgroundColor, index) => (
-          <div className="slide" key={index} style={{ backgroundColor }}>
+        {photos.map((photo, index) => (
+          <div className="slide" key={index}>
+            <img width="400" height="400" src={photo.src}></img>
             <p className="bg-white rounded-xl absolute bottom-0 p-2">
-              {backgroundColor}
+              {photo.desc}
             </p>
           </div>
         ))}
       </div>
 
       <div className="slideshowDots">
-        {colors.map((_, idx) => (
+        {photos.map((_, idx) => (
           <div
             key={idx}
             className={`slideshowDot${index === idx ? " active" : ""}`}

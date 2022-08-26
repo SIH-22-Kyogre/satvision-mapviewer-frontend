@@ -4,6 +4,7 @@ import Mumbai from "./assets/gateway-of-india-mumbai.svg";
 import Delhi from "./assets/india-gate-delhi.svg";
 import Kolkata from "./assets/victoria-memorial-kolkata.svg";
 import Bengaluru from "./assets/vidhana-soudha-bengaluru.svg";
+import Punjab from "./assets/goldtemp.svg";
 import Hamburger from "hamburger-react";
 mapboxgl.accessToken =
   "pk.eyJ1IjoiYXJhdmluZGthbm5hbjAxIiwiYSI6ImNsNzJ5dHp4NTExaXkzb3NiYXhraXYwdnQifQ.XHZ07PcTPU6ff2qxg8bcRQ";
@@ -12,8 +13,9 @@ function MapInterface() {
   let cities = [
     { name: "Bengaluru", coords: [77.5946, 12.9716], icon: Bengaluru },
     { name: "Delhi", coords: [77.209, 28.6139], icon: Delhi },
-    { name: "Kolkata", coords: [88.3639, 22.5726], icon: Kolkata },
+    { name: "Kolkata", coords: [87.7705796735, 22.8062154198], icon: Kolkata },
     { name: "Mumbai", coords: [72.8777, 19.076], icon: Mumbai },
+    { name: "Punjab", coords: [76.6597635, 30.6958605], icon: Punjab },
   ];
   const mapContainer = useRef(null);
   const map = useRef(null);
@@ -22,11 +24,21 @@ function MapInterface() {
   const [toggle, setToggle] = useState(false);
 
   // Presets
-  const initialValues = { name: "", coords: [], deleted: false };
+  const initialValues = { name: "", longitude: 0, latitude: 0, deleted: false };
   const [formValues, setFormValues] = useState(initialValues);
   const [presets, setPresets] = useState([
-    { name: "Preset 1", coords: [30.7294719, 76.663792], deleted: false },
+    {
+      name: "Preset 1",
+      longitude: 30.7294719,
+      latitude: 76.663792,
+      deleted: false,
+    },
   ]);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues({ ...formValues, [name]: value });
+    console.log(formValues);
+  };
 
   // Mockup
   let coord_mapping = {
@@ -35,6 +47,22 @@ function MapInterface() {
     Kolkata: [88.1708, 22.4857, 88.4947, 22.685],
     Mumbai: [72.6015, 18.9002, 73.1554, 19.2492],
   };
+
+  // Review 2
+
+  const marker = new mapboxgl.Marker({
+    draggable: true,
+  })
+    .setLngLat([0, 0])
+    .addTo(map);
+
+  function onDragEnd() {
+    const lngLat = marker.getLngLat();
+    coordinates.style.display = "block";
+    coordinates.innerHTML = `Longitude: ${lngLat.lng}<br />Latitude: ${lngLat.lat}`;
+  }
+
+  marker.on("dragend", onDragEnd);
 
   const [currentCity, setCurrentCity] = useState("Delhi");
 
@@ -63,7 +91,7 @@ function MapInterface() {
     });
   });
 
-  const addLayer = (coord) => {
+  const addLayer = (coord, curCity) => {
     if (typeof map.current.getSource("radar") !== "undefined") {
       map.current.removeLayer("radar-layer");
       map.current.removeSource("radar");
@@ -77,16 +105,45 @@ function MapInterface() {
       [coord[0], coord[1]],
     ]);
 
-    map.current.addSource("radar", {
-      type: "image",
-      url: `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/[${coord}]/300x200@2x?access_token=pk.eyJ1IjoiYXJhdmluZGthbm5hbjAxIiwiYSI6ImNsNzJ5dHp4NTExaXkzb3NiYXhraXYwdnQifQ.XHZ07PcTPU6ff2qxg8bcRQ`,
-      coordinates: [
-        [coord[0], coord[3]],
-        [coord[2], coord[3]],
-        [coord[2], coord[1]],
-        [coord[0], coord[1]],
-      ],
-    });
+    if (curCity === "Punjab" || curCity === "punjab") {
+      console.log("./assets/punjab.png");
+
+      map.current.addSource("radar", {
+        type: "image",
+        url: "./punjab.png",
+        coordinates: [
+          [coord[0], coord[3]],
+          [coord[2], coord[3]],
+          [coord[2], coord[1]],
+          [coord[0], coord[1]],
+        ],
+      });
+    } else if (curCity === "Kolkata" || curCity === "punjab") {
+      console.log("./assets/kolkata.png");
+
+      map.current.addSource("radar", {
+        type: "image",
+        url: "./kolkata.png",
+        coordinates: [
+          [coord[0], coord[3]],
+          [coord[2], coord[3]],
+          [coord[2], coord[1]],
+          [coord[0], coord[1]],
+        ],
+      });
+    } else {
+      map.current.addSource("radar", {
+        type: "image",
+        url: `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/[${coord}]/300x200@2x?access_token=pk.eyJ1IjoiYXJhdmluZGthbm5hbjAxIiwiYSI6ImNsNzJ5dHp4NTExaXkzb3NiYXhraXYwdnQifQ.XHZ07PcTPU6ff2qxg8bcRQ`,
+        coordinates: [
+          [coord[0], coord[3]],
+          [coord[2], coord[3]],
+          [coord[2], coord[1]],
+          [coord[0], coord[1]],
+        ],
+      });
+    }
+
     map.current.addLayer({
       id: "radar-layer",
       type: "raster",
@@ -103,7 +160,7 @@ function MapInterface() {
         <div className="flex">
           <div ref={mapContainer} className="h-screen w-full"></div>
           {isHamOpen ? (
-            <div className="w-2/6">
+            <div className="w-2/6 overflow-y-auto">
               <div className="h-screen grid place-items-center bg-zinc-100">
                 <div className="flex bg-white rounded-xl p-3 gap-2">
                   <div
@@ -111,7 +168,7 @@ function MapInterface() {
                     className={
                       !toggle
                         ? "p-2 bg-black text-white rounded-xl"
-                        : "p-2 hover:bg-slate-400 rounded-xl"
+                        : "p-2 hover:bg-slate-400 hover:text-white rounded-xl"
                     }
                   >
                     Cities
@@ -147,7 +204,7 @@ function MapInterface() {
                               map.current.flyTo({
                                 center: city.coords,
                                 essential: true,
-                                zoom: 12,
+                                zoom: 15,
                                 duration: 10000,
                               });
                               setCurrentCity(city.name);
@@ -172,12 +229,10 @@ function MapInterface() {
                             ne["lat"]
                           );
 
-                          addLayer([
-                            sw["lng"],
-                            sw["lat"],
-                            ne["lng"],
-                            ne["lat"],
-                          ]);
+                          addLayer(
+                            [sw["lng"], sw["lat"], ne["lng"], ne["lat"]],
+                            currentCity
+                          );
                         }}
                         className="p-1 bg-violet-400 hover:bg-violet-600 rounded-xl font-semibold text-white"
                       >
@@ -186,19 +241,29 @@ function MapInterface() {
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-white rounded-xl gap-1 p-2 m-2">
-                    <form>
-                      <div>
+                  <div className="bg-white rounded-xl gap-1 p-2 m-2 overflow-y">
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        setPresets(() => {
+                          setPresets([...presets, formValues]);
+                        });
+                        setFormValues(initialValues);
+                      }}
+                      className="p-2 flex flex-col gap-2"
+                    >
+                      <div className="flex flex-col">
                         <label>Name</label>
                         <input
                           className="border-2 rounded-lg p-2"
                           type="text"
-                          name="username"
-                          placeholder="Username"
-                          value={formValues.username}
+                          name="name"
+                          placeholder="Name"
+                          onChange={handleChange}
+                          value={formValues.name}
                         />
                       </div>
-                      <div>
+                      <div className="flex flex-col">
                         <label>Longitude</label>
                         <input
                           className="border-2 rounded-lg p-2"
@@ -206,10 +271,11 @@ function MapInterface() {
                           step="any"
                           name="longitude"
                           placeholder="Longitude"
+                          onChange={handleChange}
                           value={formValues.longitude}
                         />
                       </div>
-                      <div>
+                      <div className="flex flex-col">
                         <label>Latitude</label>
                         <input
                           className="border-2 rounded-lg p-2"
@@ -217,13 +283,39 @@ function MapInterface() {
                           step="any"
                           name="latitude"
                           placeholder="Latitude"
+                          onChange={handleChange}
                           value={formValues.latitude}
                         />
                       </div>
-                      <button>
-                        <i class="fa-solid fa-plus"></i>Add
+                      <button className="bg-slate-400 text-white rounded-lg p-2 hover:bg-black">
+                        Add
                       </button>
                     </form>
+                    <h1 className="text-center font-bold mt-4">
+                      List of presets
+                    </h1>
+                    <div className="flex flex-col gap-4 mt-4">
+                      {console.log("presets", presets)}
+                      {presets
+                        .filter((preset) => {
+                          return !preset.deleted;
+                        })
+                        .map((preset, index) => {
+                          return (
+                            <div
+                              key={index}
+                              className="bg-violet-300 hover:bg-violet-500 rounded-xl p-2 text-white"
+                            >
+                              <div>
+                                <p>{preset.name}</p>
+                                <p>
+                                  {preset.longitude},{preset.latitude}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
                   </div>
                 )}
               </div>
