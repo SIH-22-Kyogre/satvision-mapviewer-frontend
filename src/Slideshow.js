@@ -4,11 +4,11 @@ import "./Slideshow.css";
 const photos = [
   {
     src: "Landsat8.png",
-    desc: "LandSat-8 (National Aeronautics and Space Agency - NASA)- Spatial Resolution 30m",
+    desc: "LandSat-8 (NASA)- Spatial Resolution 30m",
   },
   {
     src: "Sentinel2.png",
-    desc: "Sentinel-2 (European Space Agency - ESA- Spatial Resolution 10m)",
+    desc: "Sentinel-2 (ESA)- Spatial Resolution 10m",
   },
   {
     src: "gt.png",
@@ -20,7 +20,7 @@ const photos = [
   },
   {
     src: "Reconstructed.png",
-    desc: "Reconstructed patches of non residential builtup areas",
+    desc: "Reconstructed patches of non residential areas",
   },
 ];
 const delay = 2500;

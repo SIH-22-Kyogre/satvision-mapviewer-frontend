@@ -6,7 +6,9 @@ import Kolkata from "./assets/victoria-memorial-kolkata.svg";
 import Bengaluru from "./assets/vidhana-soudha-bengaluru.svg";
 import Punjab from "./assets/goldtemp.svg";
 import Jaipur from "./assets/hawa-mahal.svg";
+import Ahmedabad from "./assets/jhulta-minar.svg";
 import Hamburger from "hamburger-react";
+
 mapboxgl.accessToken =
   "pk.eyJ1IjoiYXJhdmluZGthbm5hbjAxIiwiYSI6ImNsNzJ5dHp4NTExaXkzb3NiYXhraXYwdnQifQ.XHZ07PcTPU6ff2qxg8bcRQ";
 
@@ -19,9 +21,9 @@ function MapInterface() {
     { name: "Punjab", coords: [76.6597635, 30.6958605], icon: Punjab },
     { name: "Jaipur", coords: [75.778885, 26.92207], icon: Jaipur },
     {
-      name: "Ahemdabad",
+      name: "Ahmedabad",
       coords: [72.57895659691309, 23.03422397838913],
-      icon: Jaipur,
+      icon: Ahmedabad,
     },
   ];
   const mapContainer = useRef(null);
@@ -71,6 +73,7 @@ function MapInterface() {
       deleted: false,
     },
   ]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormValues({ ...formValues, [name]: value });
@@ -96,6 +99,34 @@ function MapInterface() {
   //   const lngLat = marker.getLngLat();
   //   console.log(lngLat);
   // });
+
+  const [isEvalParams, setIsEvalParams] = useState(false);
+  const initialEvalParams = {
+    image:
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC",
+    area: { l1: 112, l2: 130 },
+    color: { l1: "#6c2050", l2: "#ff80c0" },
+  };
+
+  const mockEvalParams = {
+    Punjab: {
+      image: "",
+      area: { "Non-residential": "225.0", Residential: "39.07" },
+      color: { "Non-residential": "#41ACA0", Residential: "#FFFFFF" },
+    },
+    Kolkata: {
+      image: "",
+      area: { "Non-builtup": "119.32", builtup: "490.56" },
+      color: { "Non-builtup": "#FFFFFF", builtup: "#8F382A" },
+    },
+    Ahmedabad: {
+      image: "",
+      area: { "Non-residential": "398.27", Residential: "497.83" },
+      color: { "Non-residential": "#41ACA0", Residential: "#FFFFFF" },
+    },
+  };
+
+  const [evalParams, setEvalParams] = useState(initialEvalParams);
 
   const [currentCity, setCurrentCity] = useState("Delhi");
 
@@ -125,6 +156,11 @@ function MapInterface() {
   });
 
   const addLayer = (coord, curCity) => {
+    if (["Punjab", "Ahmedabad", "Kolkata"].includes(curCity))
+      setEvalParams(() => {
+        return mockEvalParams[curCity];
+      });
+
     if (typeof map.current.getSource("radar") !== "undefined") {
       map.current.removeLayer("radar_layer");
       map.current.removeSource("radar");
@@ -139,8 +175,6 @@ function MapInterface() {
     ]);
 
     if (curCity === "Punjab" || curCity === "punjab") {
-      console.log("./assets/punjab.png");
-
       map.current.addSource("radar", {
         type: "image",
         url: "./punjab.png",
@@ -152,11 +186,20 @@ function MapInterface() {
         ],
       });
     } else if (curCity === "Kolkata") {
-      console.log("./assets/kolkata.png");
-
       map.current.addSource("radar", {
         type: "image",
         url: "./kolkata.png",
+        coordinates: [
+          [coord[0], coord[3]],
+          [coord[2], coord[3]],
+          [coord[2], coord[1]],
+          [coord[0], coord[1]],
+        ],
+      });
+    } else if (curCity === "Ahmedabad") {
+      map.current.addSource("radar", {
+        type: "image",
+        url: "./ahmedabad.jpeg",
         coordinates: [
           [coord[0], coord[3]],
           [coord[2], coord[3]],
@@ -176,7 +219,6 @@ function MapInterface() {
         ],
       });
     }
-
     map.current.addLayer({
       id: "radar_layer",
       type: "raster",
@@ -201,176 +243,252 @@ function MapInterface() {
         <div className="flex">
           <div ref={mapContainer} className="h-screen w-full"></div>
           {isHamOpen ? (
-            <div className="w-2/6 overflow-y-auto">
-              <div className="h-screen grid place-items-center bg-zinc-100">
-                <div className="flex bg-white rounded-xl p-3 gap-2">
-                  <div
-                    onClick={() => setToggle(false)}
-                    className={
-                      !toggle
-                        ? "p-2 bg-black text-white rounded-xl"
-                        : "p-2 hover:bg-slate-400 hover:text-white rounded-xl"
-                    }
-                  >
-                    Cities
+            isEvalParams ? (
+              <div className="w-2/6 overflow-y-auto">
+                <div className="h-screen grid place-items-center bg-zinc-100">
+                  <div>
+                    <button
+                      onClick={() => {
+                        setIsEvalParams(false);
+                      }}
+                      className="m-2 p-2 bg-white font-bold rounded-xl hover:bg-black hover:text-white"
+                    >
+                      Back
+                    </button>
                   </div>
-                  <div
-                    onClick={() => setToggle(true)}
-                    className={
-                      toggle
-                        ? "p-2 bg-black text-white rounded-xl"
-                        : "p-2 hover:bg-slate-400 hover:text-white rounded-xl"
-                    }
-                  >
-                    Presets
+                  <div className="bg-white p-6 rounded-lg">
+                    {/* <img src={evalParams.image}></img> */}
+                    <div>
+                      <h1 className="font-bold text-2xl bg-white p-2 rounded-xl">
+                        Evaluation Parameters
+                      </h1>
+                      <h1 className="pt-2 font-bold text-center">Legend</h1>
+                      {evalParams &&
+                        Object.entries(evalParams.color).map((item, index) => {
+                          console.log(index, item);
+                          return (
+                            <div>
+                              <svg className="inline" width="20" height="20">
+                                <rect
+                                  width="20"
+                                  height="20"
+                                  style={{
+                                    fill: `${item[1]}`,
+                                    strokeWidth: "3",
+                                    stroke: "rgb(0, 0, 0)",
+                                  }}
+                                />
+                              </svg>
+                              <span className="pl-4 inline">
+                                {item[0]} - {item[1]}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      <div className="pt-8">
+                        <h1 className="text-center font-bold">
+                          Coverage Areas
+                        </h1>
+                        {Object.entries(evalParams.area).map((item, index) => {
+                          return (
+                            <div className="flex justify-between">
+                              <div>{item[0]} (sq.km.):</div>
+                              <div>{item[1]}</div>
+                            </div>
+                          );
+                        })}
+                        <div className="flex justify-between">
+                          <div>Total Area (sq.km.):</div>
+                          <div>
+                            {Object.values(evalParams.area).reduce(
+                              (a, b) => Number(a) + Number(b),
+                              0
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                {!toggle ? (
-                  <div className="bg-white rounded-xl gap-1 p-2 m-2">
-                    <h1 className="font-bold text-2xl p-1 grid place-items-center text-center">
-                      Select a city <br />
-                      to visit
-                    </h1>
-                    <div className="flex flex-col gap-1">
-                      {cities.map((city, index) => {
-                        return (
-                          <div
-                            key={index}
-                            className={
-                              city.name === currentCity
-                                ? "rounded-xl p-1 bg-violet-600 text-white flex flex-col items-center"
-                                : "rounded-xl p-1 hover:bg-violet-100 flex flex-col items-center"
-                            }
-                            onClick={() => {
-                              map.current.flyTo({
-                                center: city.coords,
-                                essential: true,
-                                zoom: 12,
-                                duration: 10000,
-                              });
-                              setCurrentCity(city.name);
-                            }}
-                          >
-                            <img src={city.icon} alt={city.name}></img>
-                            <p>{city.name}</p>
-                          </div>
-                        );
-                      })}
-                      <button
-                        onClick={() => {
-                          const ne = map.current.getBounds()["_ne"];
-                          const sw = map.current.getBounds()["_sw"];
-
-                          console.log(
-                            "South West",
-                            sw["lng"],
-                            sw["lat"],
-                            "North East",
-                            ne["lng"],
-                            ne["lat"]
-                          );
-
-                          addLayer(
-                            [sw["lng"], sw["lat"], ne["lng"], ne["lat"]],
-                            currentCity
-                          );
-                        }}
-                        className="p-1 bg-violet-400 hover:bg-violet-600 rounded-xl font-semibold text-white"
-                      >
-                        Annotate
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-white rounded-xl gap-1 p-2 m-2 overflow-y">
-                    <form
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        setPresets(() => {
-                          setPresets([...presets, formValues]);
-                        });
-                        setFormValues(initialValues);
-                      }}
-                      className="p-2 flex flex-col gap-2"
-                    >
-                      <div className="flex flex-col">
-                        <label>Name</label>
-                        <input
-                          className="border-2 rounded-lg p-2"
-                          type="text"
-                          name="name"
-                          placeholder="Name"
-                          onChange={handleChange}
-                          value={formValues.name}
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <label>Longitude</label>
-                        <input
-                          className="border-2 rounded-lg p-2"
-                          type="number"
-                          step="any"
-                          name="longitude"
-                          placeholder="Longitude"
-                          onChange={handleChange}
-                          value={formValues.longitude}
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <label>Latitude</label>
-                        <input
-                          className="border-2 rounded-lg p-2"
-                          type="number"
-                          step="any"
-                          name="latitude"
-                          placeholder="Latitude"
-                          onChange={handleChange}
-                          value={formValues.latitude}
-                        />
-                      </div>
-                      <button className="bg-slate-400 text-white rounded-lg p-2 hover:bg-black">
-                        Add
-                      </button>
-                    </form>
-                    <h1 className="text-center font-bold mt-4">
-                      List of presets
-                    </h1>
-                    <div className="flex flex-col gap-4 mt-4">
-                      {console.log("presets", presets)}
-                      {presets &&
-                        presets
-                          .filter((preset) => {
-                            return !preset.deleted;
-                          })
-                          .map((preset, index) => {
-                            return (
-                              <div
-                                key={index}
-                                onClick={() => {
-                                  map.current.flyTo({
-                                    center: [preset.longitude, preset.latitude],
-                                    essential: true,
-                                    zoom: 12,
-                                    duration: 10000,
-                                  });
-                                  setCurrentCity("");
-                                }}
-                                className="bg-violet-300 hover:bg-violet-500 rounded-xl p-2 text-white"
-                              >
-                                <div>
-                                  <p>{preset.name}</p>
-                                  <p>
-                                    {preset.longitude},{preset.latitude}
-                                  </p>
-                                </div>
-                              </div>
-                            );
-                          })}
-                    </div>
-                  </div>
-                )}
               </div>
-            </div>
+            ) : (
+              <div className="w-2/6 overflow-y-auto">
+                <div className="h-screen grid place-items-center bg-zinc-100">
+                  <div className="flex bg-white rounded-xl p-3 gap-2">
+                    <div
+                      onClick={() => setToggle(false)}
+                      className={
+                        !toggle
+                          ? "p-2 bg-black text-white rounded-xl"
+                          : "p-2 hover:bg-slate-400 hover:text-white rounded-xl"
+                      }
+                    >
+                      Cities
+                    </div>
+                    <div
+                      onClick={() => setToggle(true)}
+                      className={
+                        toggle
+                          ? "p-2 bg-black text-white rounded-xl"
+                          : "p-2 hover:bg-slate-400 hover:text-white rounded-xl"
+                      }
+                    >
+                      Presets
+                    </div>
+                  </div>
+                  {!toggle ? (
+                    <div className="bg-white rounded-xl gap-1 p-2 m-2">
+                      <h1 className="font-bold text-2xl p-1 grid place-items-center text-center">
+                        Select a city <br />
+                        to visit
+                      </h1>
+                      <div className="flex flex-col gap-1">
+                        {cities.map((city, index) => {
+                          return (
+                            <div
+                              key={index}
+                              className={
+                                city.name === currentCity
+                                  ? "rounded-xl p-1 bg-violet-600 text-white flex flex-col items-center"
+                                  : "rounded-xl p-1 hover:bg-violet-100 flex flex-col items-center"
+                              }
+                              onClick={() => {
+                                map.current.flyTo({
+                                  center: city.coords,
+                                  essential: true,
+                                  zoom: 12,
+                                  duration: 6000,
+                                });
+                                setCurrentCity(city.name);
+                              }}
+                            >
+                              <img src={city.icon} alt={city.name}></img>
+                              <p>{city.name}</p>
+                            </div>
+                          );
+                        })}
+                        <button
+                          onClick={() => {
+                            const ne = map.current.getBounds()["_ne"];
+                            const sw = map.current.getBounds()["_sw"];
+
+                            console.log(
+                              "South West",
+                              sw["lng"],
+                              sw["lat"],
+                              "North East",
+                              ne["lng"],
+                              ne["lat"]
+                            );
+
+                            addLayer(
+                              [sw["lng"], sw["lat"], ne["lng"], ne["lat"]],
+                              currentCity
+                            );
+
+                            setIsEvalParams(true);
+                          }}
+                          className="p-1 bg-violet-400 hover:bg-violet-600 rounded-xl font-semibold text-white"
+                        >
+                          Annotate
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-white rounded-xl gap-1 p-2 m-2 overflow-y">
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          setPresets(() => {
+                            setPresets([...presets, formValues]);
+                          });
+                          setFormValues(initialValues);
+                        }}
+                        className="p-2 flex flex-col gap-2"
+                      >
+                        <div className="flex flex-col">
+                          <label>Name</label>
+                          <input
+                            className="border-2 rounded-lg p-2"
+                            type="text"
+                            name="name"
+                            placeholder="Name"
+                            onChange={handleChange}
+                            value={formValues.name}
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label>Longitude</label>
+                          <input
+                            className="border-2 rounded-lg p-2"
+                            type="number"
+                            step="any"
+                            name="longitude"
+                            placeholder="Longitude"
+                            onChange={handleChange}
+                            value={formValues.longitude}
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label>Latitude</label>
+                          <input
+                            className="border-2 rounded-lg p-2"
+                            type="number"
+                            step="any"
+                            name="latitude"
+                            placeholder="Latitude"
+                            onChange={handleChange}
+                            value={formValues.latitude}
+                          />
+                        </div>
+                        <button className="bg-slate-400 text-white rounded-lg p-2 hover:bg-black">
+                          Add
+                        </button>
+                      </form>
+                      <h1 className="text-center font-bold mt-4">
+                        List of presets
+                      </h1>
+                      <div className="flex flex-col gap-4 mt-4">
+                        {console.log("presets", presets)}
+                        {presets &&
+                          presets
+                            .filter((preset) => {
+                              return !preset.deleted;
+                            })
+                            .map((preset, index) => {
+                              return (
+                                <div
+                                  key={index}
+                                  onClick={() => {
+                                    map.current.flyTo({
+                                      center: [
+                                        preset.longitude,
+                                        preset.latitude,
+                                      ],
+                                      essential: true,
+                                      zoom: 12,
+                                      duration: 6000,
+                                    });
+                                    setCurrentCity("");
+                                    setIsEvalParams(true);
+                                  }}
+                                  className="bg-violet-300 hover:bg-violet-500 rounded-xl p-2 text-white"
+                                >
+                                  <div>
+                                    <p>{preset.name}</p>
+                                    <p>
+                                      {preset.longitude},{preset.latitude}
+                                    </p>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )
           ) : (
             <div />
           )}
